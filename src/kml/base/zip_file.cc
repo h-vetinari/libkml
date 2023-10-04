@@ -120,12 +120,12 @@ ZipFile::ZipFile(const string& data)
       unz_file_info finfo;
       do {
         static char buf[1024];
-        if (libkml_unzGetCurrentFileInfo(zfile, &finfo, buf, sizeof(buf),
+        if (unzGetCurrentFileInfo(zfile, &finfo, buf, sizeof(buf),
               0, 0, 0, 0) == UNZ_OK) {
           zipfile_toc_.push_back(buf);
         }
-      } while (libkml_unzGoToNextFile(zfile) == UNZ_OK);
-      libkml_unzClose(zfile);
+      } while (unzGoToNextFile(zfile) == UNZ_OK);
+      unzClose(zfile);
     }
   }
 }
@@ -183,7 +183,7 @@ bool ZipFile::IsInToc(const string& path_in_zip) const {
 class UnzFileHelper {
  public:
   UnzFileHelper(unzFile unzfile) : unzfile_(unzfile) {}
-  ~UnzFileHelper() { libkml_unzClose(unzfile_); }
+  ~UnzFileHelper() { unzClose(unzfile_); }
   unzFile get_unzfile() { return unzfile_; }
  private:
   unzFile unzfile_;
@@ -208,10 +208,10 @@ bool ZipFile::GetEntry(const string& path_in_zip,
 
   boost::scoped_ptr<UnzFileHelper> unzfilehelper(new UnzFileHelper(unzfile));
   unz_file_info finfo;
-  if (libkml_unzLocateFile(unzfilehelper->get_unzfile(),
+  if (unzLocateFile(unzfilehelper->get_unzfile(),
                     path_in_zip.c_str(), 0) != UNZ_OK ||
-      libkml_unzOpenCurrentFile(unzfilehelper->get_unzfile()) != UNZ_OK ||
-      libkml_unzGetCurrentFileInfo(unzfilehelper->get_unzfile(), &finfo, 0, 0,
+      unzOpenCurrentFile(unzfilehelper->get_unzfile()) != UNZ_OK ||
+      unzGetCurrentFileInfo(unzfilehelper->get_unzfile(), &finfo, 0, 0,
                                    0, 0, 0, 0) != UNZ_OK) {
     return false;
   }
@@ -227,7 +227,7 @@ bool ZipFile::GetEntry(const string& path_in_zip,
     return true;
   }
   char* filedata = new char[nbytes];
-  if (libkml_unzReadCurrentFile(unzfilehelper->get_unzfile(), filedata,
+  if (unzReadCurrentFile(unzfilehelper->get_unzfile(), filedata,
                          nbytes) == static_cast<int>(nbytes)) {
     output->assign(filedata, nbytes);
     delete [] filedata;
