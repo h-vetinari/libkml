@@ -29,9 +29,8 @@
 #include "kml/base/zip_file.h"
 #include "kml/base/file.h"
 
-#include "kml/base/contrib/minizip/unzip.h"
-#include "kml/base/contrib/minizip/iomem_simple.h"
-
+#include <minizip/ioapi_mem.h>
+#include <minizip/unzip.h>
 #include <minizip/zip.h>
 
 namespace kmlbase {
@@ -89,12 +88,34 @@ ZipFile* ZipFile::Create(const char* file_path) {
 ZipFile::ZipFile(const string& data)
   : minizip_file_(NULL), data_(data),
     max_uncompressed_file_size_(kMaxUncompressedZipSize) {
+  // The libkml-vendored `mem_simple_create_file` from an old minizip-offshoot
+  // has been integrated into newer minizip as `fill_memory_filefunc`.
+  // The signatures are different, in that the former takes size & length,
+  //     https://github.com/libkml/libkml/blob/1.3.0/src/kml/base/contrib/minizip/iomem_simple.c#L222
+  // whereas the latter takes a structure that contains those, see
+  //     https://github.com/zlib-ng/minizip-ng/blob/1.2/ioapi_mem.c#L46
+  //
+  // There's a direct mapping between the libkml-vendored structure `_MEMFILE`,
+  //     https://github.com/libkml/libkml/blob/1.3.0/src/kml/base/contrib/minizip/iomem_simple.c#L117-L122
+  // and the structure `ourmemory_t` as of minizip 1.2
+  //     https://github.com/zlib-ng/minizip-ng/blob/1.2/ioapi_mem.c#L38-L44
+  // which is as follows:
+  //     _MEMFILE.buffer == ourmemory_t.base
+  //     _MEMFILE.length == ourmemory_t.size
+  //   _MEMFILE.position == ourmemory_t.cur_offset
+  //
+  // Thus we set up the structure and initialize it as required, see
+  //     https://github.com/zlib-ng/minizip-ng/tree/1.2#io-memory
+  // Additionally, the return types have changed from void* to void,
+  // we don't check the returns anymore (matches tutorial above).
+  ourmemory_t unzmem = {};
+  unzmem.base = const_cast<char *>(static_cast<const char *>(data.data()));
+  unzmem.size = data.size();
   // Fill the table of contents for this zipfile.
   zlib_filefunc_def api;
-  if (voidpf mem_stream = mem_simple_create_file(
-      &api, const_cast<void*>(static_cast<const void*>(data.data())),
-      data.size())) {
-    unzFile zfile = libkml_unzAttach(mem_stream, &api);
+  fill_memory_filefunc(&api, &unzmem);
+  if (true) {
+    unzFile zfile = unzOpen2("__notused__", &api);
     if (zfile) {
       unz_file_info finfo;
       do {
@@ -174,14 +195,13 @@ bool ZipFile::GetEntry(const string& path_in_zip,
   if (!IsInToc(path_in_zip)) {
     return false;
   }
+  // see comment further up above fill_memory_filefunc
+  ourmemory_t unzmem = {};
+  unzmem.base = const_cast<char *>(static_cast<const char *>(data_.data()));
+  unzmem.size = data_.size();
   zlib_filefunc_def api;
-  voidpf mem_stream = mem_simple_create_file(
-      &api, const_cast<void*>(static_cast<const void*>(data_.data())),
-      data_.size());
-  if (!mem_stream) {
-    return false;
-  }
-  unzFile unzfile = libkml_unzAttach(mem_stream, &api);
+  fill_memory_filefunc(&api, &unzmem);
+  unzFile unzfile = unzOpen2("__notused__", &api);
   if (!unzfile) {
     return false;
   }

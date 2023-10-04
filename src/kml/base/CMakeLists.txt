@@ -5,9 +5,7 @@ endif()
 
 list(APPEND KMLBASE_LINK_LIBS ${EXPAT_LIBRARY})
 
-file(GLOB SRCS "*.cc"
-  contrib/minizip/unzip.c
-  contrib/minizip/iomem_simple.c)
+file(GLOB SRCS "*.cc")
 
 if(WIN32)
   list(REMOVE_ITEM SRCS "${CMAKE_CURRENT_SOURCE_DIR}/file_posix.cc")
