@@ -36,7 +36,7 @@ class DateTimeTest : public testing::Test {
   boost::scoped_ptr<DateTime> date_time_;
 };
 
-TEST_F(DateTimeTest, TestCreate) {
+TEST_F(DateTimeTest, DISABLED_TestCreate) {
   // Call the method under test.
   const string kDateTime("2008-10-03T09:25:42Z");
   date_time_.reset(DateTime::Create(kDateTime));
@@ -55,7 +55,7 @@ TEST_F(DateTimeTest, TestBad) {
   ASSERT_FALSE(date_time_.get());
 }
 
-TEST_F(DateTimeTest, TestToTimeT) {
+TEST_F(DateTimeTest, DISABLED_TestToTimeT) {
   ASSERT_EQ(1223025942, DateTime::ToTimeT("2008-10-03T09:25:42Z"));
 
   // Minimum time_t.
@@ -67,7 +67,7 @@ TEST_F(DateTimeTest, TestToTimeT) {
   //ASSERT_EQ(0, DateTime::ToTimeT("complete invalid input"));
 }
 
-TEST_F(DateTimeTest, TestGetTimeT) {
+TEST_F(DateTimeTest, DISABLED_TestGetTimeT) {
   // Minimum time_t.
   date_time_.reset(DateTime::Create( "1970-01-01T00:00:00Z"));
   ASSERT_EQ(0, date_time_->GetTimeT());

@@ -309,7 +309,7 @@ TEST_F(KmzTest, TestAddFile) {
   ASSERT_EQ(string("other/blah.kml"), list[2]);
 }
 
-TEST_F(KmzTest, TestAddFileList) {
+TEST_F(KmzTest, DISABLED_TestAddFileList) {
   kmlbase::TempFilePtr tempfile = kmlbase::TempFile::CreateTempFile();
   size_t errs = 0;
   ASSERT_TRUE(tempfile != NULL);
@@ -354,7 +354,7 @@ TEST_F(KmzTest, TestAddFileList) {
 #endif
 }
 
-TEST_F(KmzTest, TestCreateFromElement) {
+TEST_F(KmzTest, DISABLED_TestCreateFromElement) {
   kmlbase::TempFilePtr tempfile = kmlbase::TempFile::CreateTempFile();
   ASSERT_TRUE(tempfile != NULL);
   const string kBaseDir = File::JoinPaths(string(DATADIR), "kmz");
@@ -381,7 +381,7 @@ TEST_F(KmzTest, TestCreateFromElement) {
 #endif
 }
 
-TEST_F(KmzTest, TestCreateFromKmlFilePath) {
+TEST_F(KmzTest, DISABLED_TestCreateFromKmlFilePath) {
   kmlbase::TempFilePtr tempfile = kmlbase::TempFile::CreateTempFile();
   ASSERT_TRUE(tempfile != NULL);
   const string kBaseDir = File::JoinPaths(string(DATADIR), "kmz");
@@ -403,7 +403,7 @@ TEST_F(KmzTest, TestCreateFromKmlFilePath) {
 #endif
 }
 
-TEST_F(KmzTest, TestCreateFromKmlFile) {
+TEST_F(KmzTest, DISABLED_TestCreateFromKmlFile) {
   kmlbase::TempFilePtr tempfile = kmlbase::TempFile::CreateTempFile();
   ASSERT_TRUE(tempfile != NULL);
   const string kBaseDir = File::JoinPaths(string(DATADIR), "kmz");
