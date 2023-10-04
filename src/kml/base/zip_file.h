@@ -32,6 +32,19 @@
 #include "kml/base/string_util.h"
 #include "kml/base/util.h"
 
+// The following define is taken from the vendored & modified minizip, see
+//     https://github.com/libkml/libkml/blob/1.3.0/src/kml/base/contrib/minizip/unzip.h#L52-L60
+
+/* This define is local to libkml and is not a part of the regular zlib
+ * library. It sets a maximum upper limit on the uncompressed size we'll
+ * allow minizip to handle. The PKZIP specification here:
+ * https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
+ * defines the uncompressed size field to be 4 bytes wide. In unzip.c minizip
+ * uses an unsigned long, but iomem_simple.c uses a signed long. Hence, we
+ * use the maximum size of a 32-bit signed long integer.
+ */
+#define ZIP_MAX_UNCOMPRESSED_SIZE 2147483647
+
 namespace kmlbase {
 
 // Forward-declare the internal MinizipFile class that hides our current use
